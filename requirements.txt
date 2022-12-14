@@ -1,0 +1,5 @@
+pandas>=1.5.2
+numpy>=1.23.5
+XlsxWriter>=3.0.3
+python-dateutil>=2.8.2
+matplotlib>=3.6.2
