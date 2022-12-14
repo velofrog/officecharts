@@ -2,6 +2,8 @@ from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.unixccompiler import UnixCCompiler
 
+# This is super messy. 
+# Need to extend in order to build Objective-C++ code 
 class custom_build_ext(build_ext):
     def initialize_options(self) -> None:
         UnixCCompiler.src_extensions.append(".mm")
