@@ -7,7 +7,7 @@ import pandas as pd
 from random import randint
 
 
-def container_chart(data: pd.DataFrame) -> bytes:
+def container_chart(data: pd.DataFrame, theme: Theme, colours: list[Style]) -> bytes:
 
     root = ET.Element("c:chartSpace", {"xmlns:c": "http://schemas.openxmlformats.org/drawingml/2006/chart",
                                        "xmlns:a": "http://schemas.openxmlformats.org/drawingml/2006/main",

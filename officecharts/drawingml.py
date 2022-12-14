@@ -492,7 +492,7 @@ def ml_chartSeries(data: pandas.DataFrame) -> list[ET.Element]:
 
 
 def ml_group(identifier: int = 0, name: str = "", x: Emu = Emu(0), y: Emu = Emu(0),
-             cx: Emu = Emu(cm=23.5), cy: Emu = Emu(cm=14.5)) -> list[ET.Element]:
+             cx: Emu = Emu(cm=10), cy: Emu = Emu(cm=10)) -> list[ET.Element]:
     return [
         xml_tag(
             "a:nvGrpSpPr",
