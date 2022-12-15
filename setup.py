@@ -1,7 +1,7 @@
 from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.unixccompiler import UnixCCompiler
-
+import platform
 
 # This is super messy. 
 # Need to extend in order to build Objective-C++ code 
@@ -60,6 +60,16 @@ class custom_build_ext(build_ext):
         build_ext.build_extensions(self)
 
 
+if platform.system() == "Windows":
+    ext_sources_list = ["src/windows_clipboard.cpp"]
+    ext_libraries = ['user32']
+elif platform.system() == "Darwin":
+    ext_sources_list = ["src/mac_clipboard.mm"]
+    ext_libraries = []
+else:
+    ext_sources_list = []
+    ext_libraries = []
+
 setup(
     name="officecharts",
     version="1.0",
@@ -71,8 +81,9 @@ setup(
     ext_modules=[
         Extension(
             name="officecharts.os_clipboard",
-            sources=["src/mac_clipboard.mm"]
+            sources=ext_sources_list,
+            libraries=ext_libraries
         )
-    ],
-    cmdclass={"build_ext": custom_build_ext}
+    ]
+    #cmdclass={"build_ext": custom_build_ext}
 )

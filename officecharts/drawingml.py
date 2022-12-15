@@ -76,7 +76,7 @@ class Emu:
 
 @dataclass
 class Font:
-    family: str = "Helvetica"
+    family: str | None = "Helvetica"
     size: float = 12
     bold: bool = False
     italic: bool = False
