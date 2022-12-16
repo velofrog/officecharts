@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from officecharts.drawingml import xml_header, xml_tagWithAttributes
+from .drawingml import xml_header, xml_tagWithAttributes
 
 
 def chart_colours() -> bytes:

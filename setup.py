@@ -61,10 +61,10 @@ class custom_build_ext(build_ext):
 
 
 if platform.system() == "Windows":
-    ext_sources_list = ["src/windows_clipboard.cpp"]
+    ext_sources_list = ["officecharts/src/windows_clipboard.cpp"]
     ext_libraries = ['user32']
 elif platform.system() == "Darwin":
-    ext_sources_list = ["src/mac_clipboard.mm"]
+    ext_sources_list = ["officecharts/src/mac_clipboard.mm"]
     ext_libraries = []
 else:
     ext_sources_list = []

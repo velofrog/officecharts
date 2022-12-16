@@ -59,8 +59,8 @@ void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
 }
 
 static PyObject *test(PyObject *self, PyObject *args) {
-    std::cout << "hello world\n";
-    return NULL;
+    std::cout << "hello world.should return PyBuild('')\n";
+    return Py_BuildValue("");
 }
 
 static PyMethodDef os_clipboard_methods[] =

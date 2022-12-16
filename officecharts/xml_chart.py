@@ -1,10 +1,13 @@
 import xml.etree.ElementTree as ET
-from officecharts.drawingml import xml_header, xml_append, ml_tagWithProperties, ml_title, ml_chartText, ml_richText, \
+from .drawingml import xml_header, xml_append, ml_tagWithProperties, ml_title, ml_chartText, ml_richText, \
     ml_bodyProperties, properties, ml_listStyle, ml_textParagraph, ml_paragraphProperties, \
     ml_defaultTextRunProperties, ml_textRun, Font, ml_tag, ml_chartSeries, ml_outline, Style, ML_LineCap, ML_LineType, \
     ML_PenAlignment, ML_LineJoin
+from .themes import Theme
+
 import pandas as pd
 from random import randint
+
 
 
 def container_chart(data: pd.DataFrame, theme: Theme, colours: list[Style]) -> bytes:

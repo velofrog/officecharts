@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from officecharts.utilities import *
+from .utilities import *
 import xml.etree.ElementTree as ET
 import matplotlib.colors
 import pandas
