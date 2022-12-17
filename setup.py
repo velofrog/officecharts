@@ -54,21 +54,24 @@ class custom_build_ext(build_ext):
         super().initialize_options()
 
     def build_extensions(self) -> None:
-        self.compiler.set_executable("compiler_so", "clang++")
-        self.compiler.set_executable("compiler_cxx", "clang++")
-        self.compiler.set_executable("linker_so", "clang++")
+        #self.compiler.set_executable("compiler_so", "clang++")
+        #self.compiler.set_executable("compiler_cxx", "clang++")
+        #self.compiler.set_executable("linker_so", "clang++")
         build_ext.build_extensions(self)
 
 
 if platform.system() == "Windows":
     ext_sources_list = ["src/lib/windows_clipboard_cpython.cpp"]
     ext_libraries = ['user32']
+    ext_command = {}
 elif platform.system() == "Darwin":
     ext_sources_list = ["src/lib/mac_clipboard.mm"]
     ext_libraries = []
+    ext_command = {"build_ext": custom_build_ext}
 else:
     ext_sources_list = []
     ext_libraries = []
+    ext_command = {}
 
 setup(
     name="officecharts",
@@ -81,11 +84,11 @@ setup(
     setup_requires=['pandas', 'python-dateutil', 'XlsxWriter', 'matplotlib'],
     ext_modules=[
         Extension(
-            name="officecharts.os_clipboard",
+            name="os_clipboard",
             sources=ext_sources_list,
             libraries=ext_libraries,
             include_dirs=["src/lib"]
         )
-    ]
-    #cmdclass={"build_ext": custom_build_ext}
+    ],
+    cmdclass=ext_command
 )
