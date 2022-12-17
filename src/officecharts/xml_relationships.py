@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from officecharts.drawingml import xml_append, xml_header
+from .drawingml import xml_append, xml_header
 
 
 def content_types() -> bytes:

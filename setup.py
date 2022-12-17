@@ -61,10 +61,10 @@ class custom_build_ext(build_ext):
 
 
 if platform.system() == "Windows":
-    ext_sources_list = ["officecharts/src/windows_clipboard.cpp"]
+    ext_sources_list = ["src/lib/windows_clipboard_cpython.cpp"]
     ext_libraries = ['user32']
 elif platform.system() == "Darwin":
-    ext_sources_list = ["officecharts/src/mac_clipboard.mm"]
+    ext_sources_list = ["src/lib/mac_clipboard.mm"]
     ext_libraries = []
 else:
     ext_sources_list = []
@@ -76,13 +76,15 @@ setup(
     description="Create Office Graphics Charts from Python",
     author="Michael Allen",
     author_email="michael@velofrog.com",
-    packages=find_packages(),
+    packages=find_packages('src'),
+    package_dir={"": "src"},
     setup_requires=['pandas', 'python-dateutil', 'XlsxWriter', 'matplotlib'],
     ext_modules=[
         Extension(
             name="officecharts.os_clipboard",
             sources=ext_sources_list,
-            libraries=ext_libraries
+            libraries=ext_libraries,
+            include_dirs=["src/lib"]
         )
     ]
     #cmdclass={"build_ext": custom_build_ext}

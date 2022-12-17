@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from officecharts.drawingml import Emu, xml_header, xml_append, xml_tag, xml_tagWithAttributes, ml_group
+from .drawingml import Emu, xml_header, xml_append, xml_tag, xml_tagWithAttributes, ml_group
 
 
 def container_drawing(x: Emu = Emu(0), y: Emu = Emu(0), width: Emu = Emu(cm=23.5), height: Emu = Emu(cm=14.5)) -> bytes:

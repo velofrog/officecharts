@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from officecharts.drawingml import xml_header, xml_append, xml_tag, xml_tagWithAttributes, ml_outline, Style, \
+from .drawingml import xml_header, xml_append, xml_tag, xml_tagWithAttributes, ml_outline, Style, \
     ML_LineCap, ML_LineJoin, ML_PenAlignment, ML_LineType
 
 

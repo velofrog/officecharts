@@ -20,20 +20,33 @@ uint32_t officedrawing_clipboardformat() {
     return CF_OFFICEDRAWING_OBJECT;
 }
 
-void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
+PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
+
+    PyObject *bytes_object;
+
+    if (!PyArg_ParseTuple(args, "S", &bytes_object)) {
+        return NULL;
+    }
+
+    std::size_t length = PyBytes_Size(bytes_object);
+    char *data = PyBytes_AsString(bytes_object);
+
     HGLOBAL hglbData;
-    if (length == 0) return;
+    if (length == 0) {
+        std::cerr << "Nothing to send to clipboard\n";
+        return Py_BuildValue("");
+    }
 
     hglbData = GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT, length);
     if (hglbData == NULL) {
         std::cerr << "Error sending data to clipboard: Failed to allocate memory\n";
-        return;
+        return Py_BuildValue("");
     }
 
     uint8_t *ptr = (uint8_t *)GlobalLock(hglbData);
     if (ptr == NULL) {
         std::cerr << "Error sending data to clipboard: Failed to get pointer to memory object\n";
-        return;
+        return Py_BuildValue("");
     }
 
     std::memcpy(ptr, data, length);
@@ -43,7 +56,7 @@ void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
     if (OpenClipboard(NULL)) {
         if (EmptyClipboard()) {
             if (SetClipboardData(officedrawing_clipboardformat(), hglbData)) {
-                std::cout << "Uploaded " << length << " bytes to clipboard\n";
+                std::cout << "Sent " << length << " bytes to clipboard\n";
             } else {
                 std::cerr << "Error placing data on clipboard\n";
             }
@@ -56,6 +69,8 @@ void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
     }
 
     GlobalFree(hglbData);
+
+    return Py_BuildValue("");
 }
 
 static PyObject *test(PyObject *self, PyObject *args) {
@@ -66,6 +81,8 @@ static PyObject *test(PyObject *self, PyObject *args) {
 static PyMethodDef os_clipboard_methods[] =
 {
     {"test", test, METH_VARARGS, "Test function"},
+    {"send_officedrawing_to_clipboard", send_officedrawing_to_clipboard, METH_VARARGS,
+        "Send OfficeDrawing to Windows Clipboard"},
     { NULL, NULL, 0, NULL}
 };
 
