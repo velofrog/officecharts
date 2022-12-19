@@ -83,6 +83,6 @@ def create_linechart(data: pandas.DataFrame, theme: Theme = Theme(),
             zip_file.writestr(archive, stream, zipfile.ZIP_STORED if 'xlsx' in archive else zipfile.ZIP_DEFLATED)
 
     clipboard.send_officedrawing(zip_buffer)
-    with open("/Users/michael/clip4/last_output.zip", "wb") as f:
-        f.write(zip_buffer.getvalue())
+    # with open("/Users/michael/clip4/last_output.zip", "wb") as f:
+    #     f.write(zip_buffer.getvalue())
 

@@ -2,7 +2,9 @@ LICENSE
 README.md
 pyproject.toml
 setup.py
+src/lib/windows_clipboard_cpython.cpp
 src/lib/mac_clipboard_cpython.mm
+src/lib/windows_clipboard_cpython.cpp
 src/officecharts/__init__.py
 src/officecharts/clipboard.py
 src/officecharts/container.py
