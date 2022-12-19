@@ -18,6 +18,8 @@ class custom_build_ext(build_ext):
             if ext == ".cpp":
                 new_postargs = new_postargs + ["-std=c++17"]
             elif ext == ".mm":
+                self.compiler_so[0] = 'clang++'
+                self.linker_so[0] = 'clang++'
                 new_postargs = new_postargs + [
                     "-ObjC++", "-fobjc-weak", "-fobjc-arc"
                 ]
@@ -39,8 +41,7 @@ class custom_build_ext(build_ext):
                      target_lang=None):
             new_extra_postargs = extra_postargs or []
             framework_postargs = [
-                "-framework", "AppKit",
-                "-shared"
+                "-framework", "AppKit"
             ]
 
             new_extra_postargs = new_extra_postargs + framework_postargs
@@ -54,9 +55,9 @@ class custom_build_ext(build_ext):
         super().initialize_options()
 
     def build_extensions(self) -> None:
-        #self.compiler.set_executable("compiler_so", "clang++")
-        #self.compiler.set_executable("compiler_cxx", "clang++")
-        #self.compiler.set_executable("linker_so", "clang++")
+        # self.compiler.set_executable("compiler_so", ['clang++'])
+        # self.compiler.set_executable("compiler_cxx", "clang++")
+        # self.compiler.set_executable("linker_so", "clang++")
         build_ext.build_extensions(self)
 
 
@@ -64,14 +65,20 @@ if platform.system() == "Windows":
     ext_sources_list = ["src/lib/windows_clipboard_cpython.cpp"]
     ext_libraries = ['user32']
     ext_command = {}
+    ext_compile_args = []
+    ext_link_args = []
 elif platform.system() == "Darwin":
-    ext_sources_list = ["src/lib/mac_clipboard.mm"]
+    ext_sources_list = ["src/lib/mac_clipboard_cpython.mm"]
     ext_libraries = []
     ext_command = {"build_ext": custom_build_ext}
+    ext_compile_args = []
+    ext_link_args = []
 else:
     ext_sources_list = []
     ext_libraries = []
     ext_command = {}
+    ext_compile_args = []
+    ext_link_args = []
 
 setup(
     name="officecharts",
@@ -84,11 +91,15 @@ setup(
     setup_requires=['pandas', 'python-dateutil', 'XlsxWriter', 'matplotlib'],
     ext_modules=[
         Extension(
-            name="os_clipboard",
+            name="officecharts.os_clipboard",
             sources=ext_sources_list,
             libraries=ext_libraries,
-            include_dirs=["src/lib"]
+            include_dirs=["src/lib"],
+            extra_compile_args=ext_compile_args,
+            extra_link_args=ext_link_args
         )
     ],
     cmdclass=ext_command
 )
+
+

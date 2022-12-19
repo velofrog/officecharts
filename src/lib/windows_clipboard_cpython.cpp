@@ -21,7 +21,6 @@ uint32_t officedrawing_clipboardformat() {
 }
 
 PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
-
     PyObject *bytes_object;
 
     if (!PyArg_ParseTuple(args, "S", &bytes_object)) {

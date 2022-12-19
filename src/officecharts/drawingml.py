@@ -1,9 +1,11 @@
+from typing import Any
 from enum import Enum
 from dataclasses import dataclass
 from .utilities import *
 import xml.etree.ElementTree as ET
 import matplotlib.colors
 import pandas
+import re
 
 
 class ML_LineCap(Enum):
@@ -76,16 +78,52 @@ class Emu:
 
 @dataclass
 class Font:
-    family: str | None = "Helvetica"
-    size: float = 12
-    bold: bool = False
-    italic: bool = False
-    underline: ML_TextUnderline = ML_TextUnderline.NONE
-    colour: object = "black"
-    kerning: float = 1200
-    spacing: float = 0
-    baseline: float = 0
-    strike: ML_TextStrikeType = ML_TextStrikeType.NONE
+    family: str | None = None
+    size: float = None
+    bold: bool = None
+    italic: bool = None
+    underline: ML_TextUnderline = None
+    colour: object = None
+    kerning: float = None
+    spacing: float = None
+    baseline: float = None
+    strike: ML_TextStrikeType = None
+
+    @staticmethod
+    def default() -> 'Font':
+        font = Font()
+        font.family = "Helvetica"
+        font.size = 12
+        font.bold = False
+        font.italic = False
+        font.underline = ML_TextUnderline.NONE
+        font.colour = "black"
+        font.kerning = 1200
+        font.spacing = 0
+        font.baseline = 0
+        font.strike = ML_TextStrikeType.NONE
+        return font
+
+    @staticmethod
+    def use(font: 'Font | None', parent: 'Font | None') -> 'Font | None':
+        if parent is None:
+            return font
+
+        if font is None:
+            return parent
+
+        result = Font()
+        result.family = parent.family if font.family is None else font.family
+        result.size = parent.size if font.size is None else font.size
+        result.bold = parent.bold if font.bold is None else font.bold
+        result.italic = parent.italic if font.italic is None else font.italic
+        result.underline = parent.underline if font.underline is None else font.underline
+        result.colour = parent.colour if font.colour is None else font.colour
+        result.kerning = parent.kerning if font.kerning is None else font.kerning
+        result.spacing = parent.spacing if font.spacing is None else font.spacing
+        result.baseline = parent.baseline if font.baseline is None else font.baseline
+        result.strike = parent.strike if font.strike is None else font.strike
+        return result
 
     def attributes(self) -> dict:
         result = {}
@@ -150,14 +188,56 @@ class Style:
     line_join: ML_LineJoin = None
     alignment: ML_PenAlignment = None
 
+    @staticmethod
+    def use(style: 'Style | None', parent: 'Style | None') -> 'Style | None':
+        if parent is None:
+            return style
+
+        if style is None:
+            return parent
+
+        result = Style()
+        result.width = parent.width if style.width is None else style.width
+        result.colour = parent.colour if style.colour is None else style.colour
+        result.fill_colour = parent.fill_colour if style.fill_colour is None else style.fill_colour
+        result.line_cap = parent.line_cap if style.line_cap is None else style.line_cap
+        result.line_type = parent.line_type if style.line_type is None else style.line_type
+        result.line_join = parent.line_join if style.line_join is None else style.line_join
+        result.alignment = parent.alignment if style.alignment is None else style.alignment
+        return result
+
 
 def properties(**kwargs) -> dict:
     return dict(**kwargs)
 
 
+def _format_code(fmt_code: str = "General"):
+    """Escape special characters in format code"""
+    fmt_code = re.sub(r"([-\/])", r"\\\1", fmt_code)
+    fmt_code = re.sub(r"\"", r"&quot;", fmt_code)
+    return fmt_code
+
+
+def _format_str(s: Any):
+    """Escape special characters for in general strings"""
+    if s is None:
+        s = ""
+
+    if not isinstance(s, str):
+        s = str(s)
+
+    # s = re.sub(r"\"", r"&quot;", s)
+    s = re.sub("&", "&amp;", s)
+    s = re.sub("<", "&lt;", s)
+    s = re.sub(">", "&gt;", s)
+
+    return s
+
+
 def xml_append(parent: ET.Element, *args) -> None:
     for fn in args:
-        parent.append(fn)
+        if fn is not None:
+            parent.append(fn)
 
 
 def xml_header() -> bytes:
@@ -167,7 +247,8 @@ def xml_header() -> bytes:
 def xml_tag(tag: str, *children) -> ET.Element:
     ele = ET.Element(tag)
     for child in children:
-        ele.append(child)
+        if child is not None:
+            ele.append(child)
 
     return ele
 
@@ -222,7 +303,8 @@ def ml_paragraphProperties(*args) -> ET.Element:
     """a:pPr tag. Text Paragraph Properties"""
     ele = ET.Element("a:pPr")
     for fn in args:
-        ele.append(fn)
+        if fn is not None:
+            ele.append(fn)
     return ele
 
 
@@ -230,7 +312,8 @@ def ml_textParagraph(*args) -> ET.Element:
     """a:p tag. Text Paragraph"""
     ele = ET.Element("a:p")
     for fn in args:
-        ele.append(fn)
+        if fn is not None:
+            ele.append(fn)
     return ele
 
 
@@ -239,7 +322,8 @@ def ml_textRun(text: str, *args) -> ET.Element:
     ele = ET.Element("a:r")
     ET.SubElement(ele, "a:t").text = text
     for fn in args:
-        ele.append(fn)
+        if fn is not None:
+            ele.append(fn)
     return ele
 
 
@@ -250,7 +334,8 @@ def ml_tag(tag: str, *args) -> ET.Element | None:
         return None
 
     for fn in args:
-        ele.append(fn)
+        if fn is not None:
+            ele.append(fn)
     return ele
 
 
@@ -303,7 +388,8 @@ def ml_outline(style: Style, *args) -> ET.Element:
     ele = ml_tag("a:ln", *args)
     if style is None:
         for fn in args:
-            ele.append(fn)
+            if fn is not None:
+                ele.append(fn)
         return ele
 
     if style.width is not None:
@@ -327,7 +413,8 @@ def ml_outline(style: Style, *args) -> ET.Element:
         ele.append(ml_tag("a:" + style.line_join.value))
 
     for fn in args:
-        ele.append(fn)
+        if fn is not None:
+            ele.append(fn)
 
     return ele
 
@@ -439,11 +526,65 @@ def ml_numberCache(array: list[object], format_code: str = None) -> ET.Element:
     return ele
 
 
-def ml_chartSeries(data: pandas.DataFrame) -> list[ET.Element]:
+def ml_dataLabel_last(data: pandas.DataFrame, theme: 'Theme') -> ET.Element:
+    ele = xml_tag("c:dLbls")
+
+    xml_append(
+        ele,
+        xml_tag("c:dLbl",
+                xml_tagWithAttributes("c:idx", {"val": str(data.shape[0]-1)}),
+                xml_tagWithAttributes("c:showLegendKey", {"val": "1"}),
+                xml_tagWithAttributes("c:showVal", {"val": "1"}),
+                xml_tagWithAttributes("c:showCatName", {"val": "0"}),
+                xml_tagWithAttributes("c:showSerName", {"val": "1"}),
+                xml_tagWithAttributes("c:showPercent", {"val": "0"}),
+                xml_tagWithAttributes("c:showBubbleSize", {"val": "0"}),
+                xml_tag("c:extLst",
+                        xml_tagWithAttributes(
+                            "c:ext", {"uri": "{CE6537A1-D6FC-4f65-9D91-7224C49458BB}",
+                                      "xmlns:c15": "http://schemas.microsoft.com/office/drawing/2012/chart"})
+                        )
+                )
+    )
+
+    xml_append(
+        ele,
+        xml_tagWithAttributes("c:numFmt", {"formatCode": _format_code(theme.axis_y_format), "sourceLinked": "0"}),
+        xml_tag("c:spPr",
+                xml_tag("c:noFill"),
+                xml_tag("a:ln",
+                        xml_tag("a:noFill")),
+                xml_tag("a:effectLst")
+                )
+    )
+
+    xml_append(
+        ele,
+        ml_tag("c:txPr",
+               ml_bodyProperties(properties(rot="0", spcFirstLastPara="1", vertOverflow="ellipsis", vert="horz",
+                                            wrap="square", anchor="ctr", anchorCtr="1")),
+               ml_listStyle(),
+               ml_textParagraph(
+                   ml_paragraphProperties(
+                       ml_defaultTextRunProperties(Font.use(theme.axis_labels_x, Font.use(theme.axis_labels,
+                                                                                          theme.font)))
+                   )
+               )
+               )
+    )
+
+    return ele
+
+
+def ml_chartSeries(data: pandas.DataFrame, theme: 'Theme', styles: list[Style],
+                   chart_properties: 'ChartProperties') -> list[ET.Element]:
     if data is None:
         return []
 
     series_array = []
+    if styles is None:
+        styles = [Style(width=2.25, colour="black", line_type=ML_LineType.SINGLE,
+                        line_cap=ML_LineCap.ROUND, line_join=ML_LineJoin.ROUND)] * data.shape[1]
 
     for idx in range(0, data.shape[1]):
         series = ET.Element('c:ser')
@@ -460,14 +601,14 @@ def ml_chartSeries(data: pandas.DataFrame) -> list[ET.Element]:
             ),
             # Series style
             ml_shapeProperties(
-                ml_outline(Style(width=2.25, line_cap=ML_LineCap.ROUND, line_join=ML_LineJoin.ROUND,
-                                 colour="black")),
+                ml_outline(styles[idx]),
                 ml_tag("a:effectLst")
             ),
             ml_tag(
                 "c:marker",
                 ml_tagWithProperties("c:symbol", {"val": "none"})
             ),
+            ml_dataLabel_last(data, theme) if chart_properties.label_endpoints else None,
             # Series category values (x-axis)
             ml_tag(
                 "c:cat",

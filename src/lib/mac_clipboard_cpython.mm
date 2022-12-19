@@ -1,3 +1,4 @@
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #import <Foundation/Foundation.h>
 #import <AppKit/NSPasteboard.h>
@@ -8,11 +9,9 @@
 
 
 extern "C" {
-    __attribute__((visibility("default"))) void send_officedrawing_to_clipboard(
-        std::size_t length, std::uint8_t *data);
-    __attribute__((visibility("default"))) static PyObject *test(PyObject *self, PyObject *args);
     __attribute__((visibility("default"))) PyMODINIT_FUNC PyInit_os_clipboard(void);
 }
+
 bool officedrawing_uti(std::string &uti) {
     CFStringRef dyn_uti;
     CFStringRef tag = CFSTR("com.microsoft.Art--GVML-ClipFormat");
@@ -31,11 +30,24 @@ bool officedrawing_uti(std::string &uti) {
     return result;
 }
 
-void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
+PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
+    PyObject *bytes_object;
+
+    if (!PyArg_ParseTuple(args, "S", &bytes_object)) {
+        return NULL;
+    }
+
+    std::size_t length = PyBytes_Size(bytes_object);
+    char *data = PyBytes_AsString(bytes_object);
+    if ((length == 0) || (data == NULL)) {
+        std::cerr << "Nothing to send to clipboard\n";
+        return Py_BuildValue("");
+    }
+
     std::string uti;
     if (!officedrawing_uti(uti)) {
         std::cerr << "Failed to send to clipboard. Could not create preferred identifier tag.\n";
-        return;
+        return Py_BuildValue("");
     }
 
     @autoreleasepool {
@@ -49,23 +61,21 @@ void send_officedrawing_to_clipboard(std::size_t length, std::uint8_t *data) {
         [pbpaste setData:pbdata forType:ns_uti];
         std::cout << "Uploaded " << length << " bytes to clipboard\n";
     }
-}
 
-static PyObject *test(PyObject *self, PyObject *args) {
-    std::cout << "hello world\n";
-    return NULL;
+    return Py_BuildValue("");
 }
 
 static PyMethodDef os_clipboard_methods[] =
 {
-    {"test", test, METH_VARARGS, "Test function"},
+    {"send_officedrawing_to_clipboard", send_officedrawing_to_clipboard, METH_VARARGS,
+     "Places an OfficeDrawing object on the Mac Clipboard"},
     { NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef os_clipboardmodule = {
     PyModuleDef_HEAD_INIT,
     "os_clipboard",
-    "Sends an Office Drawing Chart to the Mac clipboard",
+    "Places an OfficeDrawing object on the Mac clipboard",
     -1,
     os_clipboard_methods
 };

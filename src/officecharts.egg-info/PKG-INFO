@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: officecharts
+Version: 1.0
+Summary: Create Office Graphic Charts from Python
+Author: Michael Allen
+Author-email: Michael Allen <michael@velofrog.com>
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.7
+License-File: LICENSE

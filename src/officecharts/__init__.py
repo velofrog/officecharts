@@ -2,7 +2,10 @@
 # import os
 # import re
 # import sysconfig
-from .container import create_chart
+from .container import create_linechart
+from .themes import Theme, ChartPosition
+from .drawingml import Font, Style, Emu, ML_LineType, ML_LineCap, ML_LineJoin
+from .test import data
 # from .clipboard import _set_os_clipboard
 
 
