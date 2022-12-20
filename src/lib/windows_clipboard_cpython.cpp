@@ -20,6 +20,12 @@ uint32_t officedrawing_clipboardformat() {
     return CF_OFFICEDRAWING_OBJECT;
 }
 
+HWND create_window() {
+    return CreateWindowExA(0, "Static", NULL, 0,
+                           0, 0, 0, 0,
+                           NULL, NULL, NULL, NULL);
+}
+
 PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
     PyObject *bytes_object;
 
@@ -36,7 +42,7 @@ PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
         return Py_BuildValue("");
     }
 
-    hglbData = GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT, length);
+    hglbData = GlobalAlloc(GMEM_MOVEABLE|GMEM_SHARE|GMEM_ZEROINIT, length);
     if (hglbData == NULL) {
         std::cerr << "Error sending data to clipboard: Failed to allocate memory\n";
         return Py_BuildValue("");
@@ -52,7 +58,15 @@ PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
 
     GlobalUnlock(hglbData);
 
-    if (OpenClipboard(NULL)) {
+    // Not creating our own window sometimes causes setClipboardData to silently fail
+    //    i.e. appears to succeed, but no actual data placed on clipboard
+    HWND clipboardWnd = create_window();
+    if (clipboardWnd == NULL) {
+        std::cerr << "Could not create temporary clipboard window\n";
+        return Py_BuildValue("");
+    }
+
+    if (OpenClipboard(clipboardWnd)) {
         if (EmptyClipboard()) {
             if (SetClipboardData(officedrawing_clipboardformat(), hglbData)) {
                 std::cout << "Sent " << length << " bytes to clipboard\n";
@@ -68,6 +82,7 @@ PyObject *send_officedrawing_to_clipboard(PyObject *self, PyObject *args) {
     }
 
     GlobalFree(hglbData);
+    DestroyWindow(clipboardWnd);
 
     return Py_BuildValue("");
 }
