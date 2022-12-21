@@ -60,7 +60,7 @@ def container_linechart(data: pd.DataFrame, theme: Theme, styles: list[Style],
             "c:layout",
             ml_tag(
                 "c:manualLayout",
-                ml_tagWithProperties("c:targetLayout", {"val": "inner"}),
+                ml_tagWithProperties("c:layoutTarget", {"val": "inner"}),
                 ml_tagWithProperties("c:xMode", {"val": "edge"}),
                 ml_tagWithProperties("c:yMode", {"val": "factor"}),
                 ml_tagWithProperties("c:x", {"val": "0.05"}),
@@ -223,7 +223,7 @@ def container_linechart(data: pd.DataFrame, theme: Theme, styles: list[Style],
                    ),
             ml_tagWithProperties("c:crossAx", {"val": str(x_axis_id)}),
             ml_tagWithProperties("c:crosses", {"val": "autoZero"}),
-            ml_tagWithProperties("c:crossesBetween", {"val": "between"})
+            ml_tagWithProperties("c:crossBetween", {"val": "between"})
         )
     )
 
