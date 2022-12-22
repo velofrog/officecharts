@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from .drawingml import xml_header, xml_append, ml_tagWithProperties, ml_title, ml_chartText, ml_richText, \
     ml_bodyProperties, properties, ml_listStyle, ml_textParagraph, ml_paragraphProperties, \
     ml_defaultTextRunProperties, ml_textRun, Font, ml_tag, ml_chartSeries, ml_outline, Style, \
-    ml_solidFill, _format_str, _format_code
+    ml_solidFill, _format_str, _format_code, Layout, ml_layout
 from .themes import Theme, ChartProperties
 
 import pandas as pd
@@ -10,7 +10,7 @@ from random import randint
 
 
 def container_linechart(data: pd.DataFrame, theme: Theme, styles: list[Style],
-                        chart_properties: ChartProperties) -> bytes:
+                        chart_properties: ChartProperties, layout: Layout) -> bytes:
 
     root = ET.Element("c:chartSpace", {"xmlns:c": "http://schemas.openxmlformats.org/drawingml/2006/chart",
                                        "xmlns:a": "http://schemas.openxmlformats.org/drawingml/2006/main",
@@ -55,21 +55,7 @@ def container_linechart(data: pd.DataFrame, theme: Theme, styles: list[Style],
     y_axis_id = x_axis_id + 1
     
     plotarea = ET.SubElement(chart, "c:plotArea")
-    plotarea.append(
-        ml_tag(
-            "c:layout",
-            ml_tag(
-                "c:manualLayout",
-                ml_tagWithProperties("c:layoutTarget", {"val": "inner"}),
-                ml_tagWithProperties("c:xMode", {"val": "edge"}),
-                ml_tagWithProperties("c:yMode", {"val": "factor"}),
-                ml_tagWithProperties("c:x", {"val": "0.05"}),
-                ml_tagWithProperties("c:y", {"val": "0"}),
-                ml_tagWithProperties("c:w", {"val": "0.8"}),
-                ml_tagWithProperties("c:h", {"val": "0.8"})
-            )
-        )
-    )
+    plotarea.append(ml_layout(layout))
 
     # Chart Plot Area: Line Chart Data
     plotarea.append(

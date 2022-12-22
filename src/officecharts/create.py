@@ -8,10 +8,11 @@ import zipfile
 from . import xml_relationships, xml_drawing, xml_themes, xml_colours, xml_styles, xml_linechart, embedded_workbook, \
     clipboard
 from .themes import Theme, ChartProperties
-from .drawingml import Style, Emu, ML_LineType, ML_LineCap, ML_LineJoin
+from .drawingml import Style, Emu, ML_LineType, ML_LineCap, ML_LineJoin, Layout, LayoutTarget, LayoutMode
 
 
 def create_linechart(data: pandas.DataFrame, theme: Theme = Theme(),
+                     layout: Layout | None = None,
                      title: str = None,
                      axis_x_title: str = None,
                      axis_y_title: str = None,
@@ -63,6 +64,18 @@ def create_linechart(data: pandas.DataFrame, theme: Theme = Theme(),
     properties = ChartProperties(title=title, axis_x_title=axis_x_title, axis_y_title=axis_y_title,
                                  label_endpoints=label_endpoints)
 
+    if layout is None or layout.target is None:
+        layout = Layout()
+        layout.target = LayoutTarget.OUTER
+        layout.x_mode = LayoutMode.EDGE
+        layout.y_mode = LayoutMode.FACTOR
+        layout.w_mode = LayoutMode.FACTOR
+        layout.h_mode = LayoutMode.FACTOR
+        layout.x = 0.05
+        layout.y = 0
+        layout.w = 0.75 if label_endpoints else 0.95
+        layout.h = 0.8 if title is not None and axis_x_title is not None else 0.85 if axis_x_title is None else 0.95
+
     zip_buffer = io.BytesIO()
 
     contents = [
@@ -70,7 +83,7 @@ def create_linechart(data: pandas.DataFrame, theme: Theme = Theme(),
         ("_rels/.rels", xml_relationships.container_relationships()),
         ("clipboard/charts/style1.xml", xml_styles.chart_style()),
         ("clipboard/charts/colors1.xml", xml_colours.chart_colours()),
-        ("clipboard/charts/chart1.xml", xml_linechart.container_linechart(data, theme, styles, properties)),
+        ("clipboard/charts/chart1.xml", xml_linechart.container_linechart(data, theme, styles, properties, layout)),
         ("clipboard/charts/_rels/chart1.xml.rels", xml_relationships.chart_relationships()),
         ("clipboard/drawings/drawing1.xml", xml_drawing.container_drawing(width=width, height=height)),
         ("clipboard/drawings/_rels/drawing1.xml.rels", xml_relationships.drawing_relationships()),
@@ -83,6 +96,4 @@ def create_linechart(data: pandas.DataFrame, theme: Theme = Theme(),
             zip_file.writestr(archive, stream, zipfile.ZIP_STORED if 'xlsx' in archive else zipfile.ZIP_DEFLATED)
 
     clipboard.send_officedrawing(zip_buffer)
-    # with open("/Users/michael/clip4/last_output.zip", "wb") as f:
-    #     f.write(zip_buffer.getvalue())
 

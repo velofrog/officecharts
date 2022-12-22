@@ -3,7 +3,7 @@ from enum import Enum
 from .drawingml import Font, Style, Emu, ML_LineType, ML_LineJoin, ML_LineCap, ML_PenAlignment
 
 
-class ChartPosition(Enum):
+class LegendPosition(Enum):
     TOP = "t"
     BOTTOM = "b"
     LEFT = "l"
@@ -29,7 +29,7 @@ class Theme:
     axis_y: Style | bool = None
     axis_x_format: str = "yyyy-mm-dd"
     axis_y_format: str = "General"
-    legend_position: ChartPosition = ChartPosition.BOTTOM
+    legend_position: LegendPosition = LegendPosition.BOTTOM
     legend: Font = None
     grid_major: Style = None
     grid_minor: Style = None
@@ -63,7 +63,3 @@ class ChartProperties:
     axis_x_title: str = None
     axis_y_title: str = None
     label_endpoints: str = None
-
-
-
-

@@ -56,6 +56,29 @@ class ML_LegendPosition(Enum):
     TOP_RIGHT = "tr"
 
 
+class LayoutTarget(Enum):
+    INNER = "inner"
+    OUTER = "outer"
+
+
+class LayoutMode(Enum):
+    EDGE = "edge"
+    FACTOR = "factor"
+
+
+@dataclass
+class Layout:
+    target: LayoutTarget | None = None
+    x_mode: LayoutMode | None = LayoutMode.EDGE
+    y_mode: LayoutMode | None = LayoutMode.FACTOR
+    w_mode: LayoutMode | None = LayoutMode.FACTOR
+    h_mode: LayoutMode | None = LayoutMode.FACTOR
+    x: float | None = 0.05
+    y: float | None = 0
+    w: float | None = 0.9
+    h: float | None = 0.9
+
+
 @dataclass
 class Emu:
     pt: float = None
@@ -74,6 +97,18 @@ class Emu:
             return f"{self.emu:.0f}"
         else:
             return ""
+
+
+def cm(val: float) -> Emu:
+    return Emu(cm=val)
+
+
+def inches(val: float) -> Emu:
+    return Emu(inches=val)
+
+
+def points(val: float) -> Emu:
+    return Emu(pt=val)
 
 
 @dataclass
@@ -651,3 +686,24 @@ def ml_group(identifier: int = 0, name: str = "", x: Emu = Emu(0), y: Emu = Emu(
             )
         )
     ]
+
+
+def ml_layout(layout: Layout | None) -> ET.Element:
+    if layout is None or layout.target is None:
+        return ml_tag("c:layout")
+
+    return ml_tag(
+        "c:layout",
+        ml_tag(
+            "c:manualLayout",
+            ml_tagWithProperties("c:layoutTarget", {"val": layout.target.value}),
+            ml_tagWithProperties("c:xMode", {"val": layout.x_mode.value}),
+            ml_tagWithProperties("c:yMode", {"val": layout.y_mode.value}),
+            ml_tagWithProperties("c:wMode", {"val": layout.w_mode.value}),
+            ml_tagWithProperties("c:hMode", {"val": layout.h_mode.value}),
+            ml_tagWithProperties("c:x", {"val": str(layout.x)}),
+            ml_tagWithProperties("c:y", {"val": str(layout.y)}),
+            ml_tagWithProperties("c:w", {"val": str(layout.w)}),
+            ml_tagWithProperties("c:h", {"val": str(layout.h)})
+        )
+    )
